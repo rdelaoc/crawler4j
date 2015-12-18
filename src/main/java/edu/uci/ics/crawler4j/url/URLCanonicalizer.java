@@ -23,11 +23,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
-import java.util.TreeMap;
+
 
 /**
  * See http://en.wikipedia.org/wiki/URL_normalization for a reference Note: some
@@ -73,7 +72,7 @@ public class URLCanonicalizer {
 
       path = path.trim();
 
-      final SortedMap<String, String> params = createParameterMap(canonicalURL.getQuery());
+      final LinkedHashMap<String, String> params = createParameterMap(canonicalURL.getQuery());
       final String queryString;
       if ((params != null) && !params.isEmpty()) {
         String canonicalParams = canonicalize(params);
@@ -105,17 +104,17 @@ public class URLCanonicalizer {
 
   /**
    * Takes a query string, separates the constituent name-value pairs, and
-   * stores them in a SortedMap ordered by lexicographical order.
+   * stores them in a LinkedHashMap ordered by their original order.
    *
    * @return Null if there is no query string.
    */
-  private static SortedMap<String, String> createParameterMap(final String queryString) {
+  private static LinkedHashMap<String, String> createParameterMap(final String queryString) {
     if ((queryString == null) || queryString.isEmpty()) {
       return null;
     }
 
     final String[] pairs = queryString.split("&");
-    final Map<String, String> params = new HashMap<>(pairs.length);
+    final Map<String, String> params = new LinkedHashMap<>(pairs.length);
 
     for (final String pair : pairs) {
       if (pair.isEmpty()) {
@@ -136,17 +135,17 @@ public class URLCanonicalizer {
           break;
       }
     }
-    return new TreeMap<>(params);
+    return new LinkedHashMap<>(params);
   }
 
   /**
    * Canonicalize the query string.
    *
    * @param sortedParamMap
-   *            Parameter name-value pairs in lexicographical order.
+   *            Parameter name-value pairs in order of insertion.
    * @return Canonical form of query string.
    */
-  private static String canonicalize(final SortedMap<String, String> sortedParamMap) {
+  private static String canonicalize(final LinkedHashMap<String, String> sortedParamMap) {
     if ((sortedParamMap == null) || sortedParamMap.isEmpty()) {
       return "";
     }
